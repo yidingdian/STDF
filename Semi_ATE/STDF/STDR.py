@@ -604,15 +604,16 @@ class STDR(ABC):
                     # parity, established by the American National Standards Institute (ANSI) to achieve
                     # compatibility between devices exchanging character oriented data.
                     # None ASCCI characters will be replaced with empty string
-                    new_value = ''
-                    count = 0
-                    for c in Value:
-                        if ord(c) > 127:
-                            new_value += ' '
-                        else:
-                            new_value += Value[count]
-                        count += 1
-                    temp = new_value.strip()[:255]
+#                    new_value = ''
+#                    count = 0
+#                    for c in Value:
+#                        if ord(c) > 127:
+#                            new_value += ' '
+#                        else:
+#                            new_value += Value[count]
+#                        count += 1
+#                    temp = new_value.strip()[:255]
+                    temp = Value.strip()[:255]
                 elif Bytes == 'f':
                     raise STDFError("%s.set_value(%s, %s) : Unimplemented type '%s'" % (self.id, FieldKey, Value, '*'.join((Type, Bytes))))
                 else:
@@ -913,7 +914,7 @@ class STDR(ABC):
                     if self.local_debug: print("%s._type_size(%s) = %s [%s]" % (self.id, FieldKey, retval, '*'.join((Type, Bytes))))
                     return retval
                 elif Bytes == 'n':
-                    retval = len(Value) + 1
+                    retval = len(Value.encode('UTF-8')) + 1
                     if self.local_debug: print("%s._type_size(%s) = %s [%s]" % (self.id, FieldKey, retval, '*'.join((Type, Bytes))))
                     return retval
                 elif Bytes == 'f':
@@ -1171,7 +1172,8 @@ class STDR(ABC):
             if Size.isdigit() or Size=='f' or Size == 'n':
                 for i in range(K):
                     if Size == 'n':
-                        pkg += struct.pack('B', len(ValueMask[i]))
+                        pkg += struct.pack('B',
+                                len(ValueMask[i].encode('UTF-8')))
                     pkg += ValueMask[i].encode()
             else:
                 if TypeMultiplier: raise STDFError("%s._pack_item(%s) : Unsupported type-format '%s'" % (self.id, FieldKey, str(K) + TypeFormat))
